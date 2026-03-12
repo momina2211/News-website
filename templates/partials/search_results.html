@@ -1,0 +1,16 @@
+{% if articles %}
+<div class="py-2">
+    {% for article in articles %}
+    <a href="{{ article.get_absolute_url }}" class="flex items-center px-4 py-2 hover:bg-gray-50">
+        <div>
+            <p class="text-sm font-medium text-gray-900">{{ article.title }}</p>
+            {% if article.category %}<p class="text-xs text-gray-500">{{ article.category.name }}</p>{% endif %}
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% else %}
+{% if query %}
+<p class="px-4 py-3 text-sm text-gray-500">No results for "{{ query }}"</p>
+{% endif %}
+{% endif %}

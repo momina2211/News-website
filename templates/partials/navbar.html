@@ -1,0 +1,43 @@
+{% load news_tags %}
+<nav class="bg-white shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <a href="{% url 'home' %}" class="text-2xl font-bold text-blue-600">NewsHub</a>
+
+            <div class="flex items-center space-x-4">
+                <!-- Live search -->
+                <div class="relative hidden md:block">
+                    <input
+                        type="text"
+                        name="q"
+                        placeholder="Search..."
+                        class="w-64 px-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        hx-get="{% url 'search' %}"
+                        hx-trigger="keyup changed delay:300ms"
+                        hx-target="#search-results"
+                    >
+                    <div id="search-results" class="absolute top-full left-0 w-full bg-white shadow-lg rounded-lg z-50 mt-1"></div>
+                </div>
+
+                <!-- Categories dropdown -->
+                <div class="relative group">
+                    <button class="text-gray-700 hover:text-blue-600 font-medium">Categories</button>
+                    <div class="absolute hidden group-hover:block bg-white shadow-lg rounded-lg py-2 min-w-40 z-50">
+                        {% get_categories as categories %}
+                        {% for cat in categories %}
+                        <a href="{{ cat.get_absolute_url }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">{{ cat.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% if request.user.is_authenticated %}
+                <a href="{% url 'article_list' %}" class="text-gray-700 hover:text-blue-600 font-medium">My Articles</a>
+                <a href="{% url 'article_create' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700">Write</a>
+                <a href="/admin/" class="text-gray-500 hover:text-blue-600 text-sm">Admin</a>
+                {% else %}
+                <a href="/admin/login/" class="text-gray-700 hover:text-blue-600 font-medium">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
