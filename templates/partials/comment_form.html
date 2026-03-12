@@ -1,0 +1,32 @@
+{# Comment submission form — posted via HTMX #}
+<form hx-post="{% url 'comments:comment_create' article.slug %}"
+      hx-target="#comments-wrapper"
+      hx-swap="innerHTML"
+      hx-indicator="#comment-spinner"
+      class="space-y-3 p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl border border-gray-200 dark:border-gray-700">
+  {% csrf_token %}
+
+  <div class="form-group">
+    <label for="{{ form.content.id_for_label }}" class="required">Share Your Thoughts</label>
+    {{ form.content }}
+    {% if form.errors %}
+    <div class="error-message mt-2">
+      {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+      {% for error in form.content.errors %}{{ error }}{% endfor %}
+    </div>
+    {% endif %}
+    <p class="form-help">Be respectful and constructive (5-1000 characters)</p>
+  </div>
+
+  <div class="flex items-center justify-between gap-3">
+    <p class="text-xs text-gray-500 dark:text-gray-400">💡 Comments are reviewed before appearing</p>
+    <button type="submit"
+            class="btn-primary text-sm py-2 px-4 flex items-center gap-2">
+      <span id="comment-spinner" class="htmx-indicator">
+        <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+      </span>
+      <span class="htmx-request:hidden">Post Comment</span>
+    </button>
+  </div>
+</form>
+

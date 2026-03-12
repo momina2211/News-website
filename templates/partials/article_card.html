@@ -1,0 +1,46 @@
+{% load static %}
+{# Reusable article card partial #}
+<article class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col group">
+  <a href="{{ article.get_absolute_url }}" class="block overflow-hidden aspect-video bg-gray-100 dark:bg-gray-700">
+    {% if article.featured_image %}
+    <img src="{{ article.featured_image.url }}" alt="{{ article.title }}"
+         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy"/>
+    {% else %}
+    <div class="w-full h-full flex items-center justify-center text-4xl bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-gray-700 dark:to-gray-600">
+      {% if article.category.icon %}{{ article.category.icon }}{% else %}📰{% endif %}
+    </div>
+    {% endif %}
+  </a>
+  <div class="p-5 flex flex-col flex-1">
+    <div class="flex items-center gap-2 mb-3">
+      {% if article.category %}
+      <a href="{{ article.category.get_absolute_url }}"
+         class="badge bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/40 transition-colors">
+        {{ article.category.name }}
+      </a>
+      {% endif %}
+      {% if article.is_featured %}
+      <span class="badge bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400">⭐ Featured</span>
+      {% endif %}
+    </div>
+    <h2 class="text-gray-900 dark:text-white font-bold text-lg leading-snug mb-2 line-clamp-2 flex-1">
+      <a href="{{ article.get_absolute_url }}" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">{{ article.title }}</a>
+    </h2>
+    <p class="text-gray-500 dark:text-gray-400 text-sm line-clamp-2 mb-4">{{ article.summary }}</p>
+    <div class="flex items-center justify-between mt-auto pt-3 border-t border-gray-100 dark:border-gray-700">
+      <a href="{{ article.author.get_absolute_url }}" class="flex items-center gap-2 group/author">
+        <img src="{{ article.author.get_avatar_url }}" alt="{{ article.author.username }}"
+             class="w-7 h-7 rounded-full object-cover"/>
+        <span class="text-xs font-medium text-gray-600 dark:text-gray-400 group-hover/author:text-blue-600 dark:group-hover/author:text-blue-400 transition-colors">
+          {{ article.author.get_full_name|default:article.author.username }}
+        </span>
+      </a>
+      <div class="flex items-center gap-3 text-xs text-gray-400">
+        <span>{{ article.reading_time }} min read</span>
+        <span>{% if article.published_at %}{{ article.published_at|date:"M d" }}{% endif %}</span>
+        <span title="Views">👁 {{ article.view_count }}</span>
+      </div>
+    </div>
+  </div>
+</article>
+

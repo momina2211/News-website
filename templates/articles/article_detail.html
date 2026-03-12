@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}{{ article.title }} — {{ SITE_NAME }}{% endblock %}
+{% block meta_description %}{{ article.meta_description|default:article.summary }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% block og_title %}{{ article.title }}{% endblock %}
+{% block og_description %}{{ article.summary }}{% endblock %}
+{% block og_image %}{% if article.featured_image %}{{ SITE_URL }}{{ article.featured_image.url }}{% endif %}{% endblock %}
+{% block og_url %}{{ article.get_absolute_url }}{% endblock %}
+{% block tw_title %}{{ article.title }}{% endblock %}
+{% block tw_description %}{{ article.summary }}{% endblock %}
+{% block tw_image %}{% if article.featured_image %}{{ SITE_URL }}{{ article.featured_image.url }}{% endif %}{% endblock %}
+{% block canonical_url %}{{ article.get_absolute_url }}{% endblock %}
+
+{% block extra_head %}
+<meta property="article:published_time" content="{{ article.published_at|date:'c' }}"/>
+<meta property="article:modified_time" content="{{ article.updated_at|date:'c' }}"/>
+<meta property="article:author" content="{{ article.author.get_full_name|default:article.author.username }}"/>
+{% if article.category %}
+<meta property="article:section" content="{{ article.category.name }}"/>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+    {# ── Article main ── #}
+    <article class="lg:col-span-2" id="article-body">
+
+      {# Breadcrumb #}
+      <nav class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-6" aria-label="Breadcrumb">
+        <a href="{% url 'articles:home' %}" class="hover:text-blue-600 dark:hover:text-blue-400">Home</a>
+        <span>/</span>
+        {% if article.category %}
+        <a href="{{ article.category.get_absolute_url }}" class="hover:text-blue-600 dark:hover:text-blue-400">{{ article.category.name }}</a>
+        <span>/</span>
+        {% endif %}
+        <span class="text-gray-700 dark:text-gray-300 line-clamp-1">{{ article.title }}</span>
+      </nav>
+
+      {# Status banner for editors/author #}
+      {% if user.is_authenticated and article.status != "published" %}
+      <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-xl px-4 py-3 mb-6 flex items-center justify-between">
+        <div>
+          <span class="font-semibold text-yellow-800 dark:text-yellow-400">Status: {{ article.get_status_display }}</span>
+          {% if article.rejection_reason %}<p class="text-sm text-yellow-700 dark:text-yellow-300 mt-0.5">Reason: {{ article.rejection_reason }}</p>{% endif %}
+        </div>
+        <div class="flex gap-2">
+          {% if user_can_edit %}
+          <a href="{% url 'articles:article_update' article.slug %}" class="btn-secondary text-xs py-1.5 px-3">Edit</a>
+          {% endif %}
+          {% if article.status == "draft" or article.status == "rejected" %}
+          <form method="post" action="{% url 'articles:article_submit' article.slug %}">{% csrf_token %}
+            <button type="submit" class="btn-primary text-xs py-1.5 px-3">Submit for Review</button>
+          </form>
+          {% endif %}
+          {% if user.is_editor and article.status == "pending_review" %}
+          <form method="post" action="{% url 'articles:article_publish' article.slug %}">{% csrf_token %}
+            <button type="submit" class="btn-primary text-xs py-1.5 px-3 bg-green-600 hover:bg-green-700">Publish</button>
+          </form>
+          <button onclick="document.getElementById('reject-modal').classList.remove('hidden')"
+                  class="btn-secondary text-xs py-1.5 px-3 text-red-600 border-red-300 hover:bg-red-50">Reject</button>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      {# Category badge #}
+      {% if article.category %}
+      <a href="{{ article.category.get_absolute_url }}"
+         class="badge bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 text-xs mb-3 hover:bg-blue-200 dark:hover:bg-blue-800/40 transition-colors">
+        {{ article.category.name }}
+      </a>
+      {% endif %}
+
+      {# Title #}
+      <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white leading-tight mb-4">
+        {{ article.title }}
+      </h1>
+
+      {# Summary #}
+      <p class="text-lg text-gray-600 dark:text-gray-300 leading-relaxed mb-6">{{ article.summary }}</p>
+
+      {# Author row #}
+      <div class="flex items-center justify-between py-4 border-y border-gray-200 dark:border-gray-700 mb-6">
+        <div class="flex items-center gap-3">
+          <a href="{{ article.author.get_absolute_url }}">
+            <img src="{{ article.author.get_avatar_url }}" alt="{{ article.author.username }}"
+                 class="w-11 h-11 rounded-full object-cover ring-2 ring-blue-200 dark:ring-blue-800"/>
+          </a>
+          <div>
+            <a href="{{ article.author.get_absolute_url }}"
+               class="font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 text-sm">
+              {{ article.author.get_full_name|default:article.author.username }}
+            </a>
+            <p class="text-xs text-gray-500 dark:text-gray-400">
+              {{ article.published_at|date:"F d, Y" }} · {{ article.reading_time }} min read · 👁 {{ article.view_count|intcomma }} views
+            </p>
+          </div>
+        </div>
+        {# Share buttons #}
+        <div class="flex items-center gap-2" id="share-buttons" data-url="{{ SITE_URL }}{{ article.get_absolute_url }}" data-title="{{ article.title }}">
+          <button onclick="shareOn('twitter')" aria-label="Share on Twitter"
+                  class="p-2 rounded-full bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 hover:bg-sky-200 dark:hover:bg-sky-800/40 transition-colors">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg>
+          </button>
+          <button onclick="shareOn('facebook')" aria-label="Share on Facebook"
+                  class="p-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-800/40 transition-colors">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </button>
+          <button onclick="copyLink()" aria-label="Copy link"
+                  class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          </button>
+        </div>
+      </div>
+
+      {# Featured image #}
+      {% if article.featured_image %}
+      <figure class="mb-8 rounded-2xl overflow-hidden">
+        <img src="{{ article.featured_image.url }}" alt="{{ article.title }}"
+             class="w-full object-cover max-h-[500px]"/>
+        {% if article.featured_image_caption %}
+        <figcaption class="text-xs text-gray-400 text-center mt-2 italic">{{ article.featured_image_caption }}</figcaption>
+        {% endif %}
+      </figure>
+      {% endif %}
+
+      {# Article content #}
+      <div class="prose prose-lg dark:prose-invert max-w-none
+                  prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-white
+                  prose-a:text-blue-600 dark:prose-a:text-blue-400
+                  prose-img:rounded-xl prose-blockquote:border-blue-500
+                  prose-pre:bg-gray-900 prose-pre:text-gray-100"
+           id="article-content">
+        {{ article.content|linebreaks }}
+      </div>
+
+      {# Tags #}
+      {% if article.tags.all %}
+      <div class="flex flex-wrap gap-2 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <span class="text-sm font-semibold text-gray-500 dark:text-gray-400 mr-1">Tags:</span>
+        {% for tag in article.tags.all %}
+        <a href="{{ tag.get_absolute_url }}"
+           class="badge bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-xs px-3 py-1">
+          #{{ tag.name }}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {# Like button #}
+      <div class="flex items-center gap-4 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <span class="text-sm text-gray-500 dark:text-gray-400">Found this helpful?</span>
+        {% include "partials/like_button.html" %}
+      </div>
+
+      {# Author bio box #}
+      <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 mt-8 flex gap-4">
+        <img src="{{ article.author.get_avatar_url }}" alt="{{ article.author.username }}"
+             class="w-16 h-16 rounded-full object-cover flex-shrink-0"/>
+        <div>
+          <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">Written by</p>
+          <a href="{{ article.author.get_absolute_url }}"
+             class="font-bold text-gray-900 dark:text-white text-lg hover:text-blue-600 dark:hover:text-blue-400">
+            {{ article.author.get_full_name|default:article.author.username }}
+          </a>
+          {% if article.author.bio %}
+          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ article.author.bio|truncatewords:30 }}</p>
+          {% endif %}
+          <div class="flex gap-3 mt-2">
+            {% if article.author.twitter %}
+            <a href="https://twitter.com/{{ article.author.twitter }}" class="text-sky-500 hover:text-sky-600 text-xs font-medium">@{{ article.author.twitter }}</a>
+            {% endif %}
+            {% if article.author.website %}
+            <a href="{{ article.author.website }}" class="text-blue-500 hover:text-blue-600 text-xs font-medium">Website ↗</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {# Comments section — loaded via HTMX #}
+      <div class="mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
+        <div id="comments-wrapper"
+             hx-get="{% url 'comments:comment_list' article.slug %}"
+             hx-trigger="load"
+             hx-indicator="#comments-spinner">
+          <div id="comments-spinner" class="htmx-indicator flex items-center gap-2 text-gray-400 text-sm py-4">
+            <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+            Loading comments...
+          </div>
+        </div>
+      </div>
+    </article>
+
+    {# ── Sidebar ── #}
+    <aside class="space-y-8">
+      {# Related articles #}
+      {% if related_articles %}
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-5">Related Articles</h3>
+        <div class="space-y-4">
+          {% for related in related_articles %}
+          <a href="{{ related.get_absolute_url }}" class="flex gap-3 group">
+            <div class="w-20 h-16 flex-shrink-0 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
+              {% if related.featured_image %}
+              <img src="{{ related.featured_image.url }}" alt="{{ related.title }}"
+                   class="w-full h-full object-cover group-hover:scale-105 transition-transform"/>
+              {% else %}
+              <div class="w-full h-full flex items-center justify-center text-2xl">📰</div>
+              {% endif %}
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-2 leading-snug transition-colors">
+                {{ related.title }}
+              </p>
+              <p class="text-xs text-gray-400 mt-1">{{ related.reading_time }} min read</p>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {# Sticky scroll spy TOC placeholder #}
+      <div class="bg-blue-50 dark:bg-blue-900/20 rounded-2xl p-6 border border-blue-100 dark:border-blue-800">
+        <h3 class="text-sm font-bold text-blue-800 dark:text-blue-400 mb-2">📖 Reading Progress</h3>
+        <div class="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2">
+          <div id="sidebar-progress" class="bg-blue-500 h-2 rounded-full transition-all duration-200" style="width: 0%"></div>
+        </div>
+        <p id="sidebar-progress-text" class="text-xs text-blue-600 dark:text-blue-400 mt-2">0% read</p>
+      </div>
+    </aside>
+  </div>
+</div>
+
+{# Reject modal #}
+<div id="reject-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+    <h3 class="font-bold text-lg text-gray-900 dark:text-white mb-4">Reject Article</h3>
+    <form method="post" action="{% url 'articles:article_reject' article.slug %}">
+      {% csrf_token %}
+      <textarea name="reason" rows="4" placeholder="Reason for rejection..."
+                class="form-textarea mb-4"></textarea>
+      <div class="flex gap-3 justify-end">
+        <button type="button" onclick="document.getElementById('reject-modal').classList.add('hidden')"
+                class="btn-secondary">Cancel</button>
+        <button type="submit" class="btn-primary bg-red-600 hover:bg-red-700">Confirm Reject</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Reading progress bar
+  const articleContent = document.getElementById('article-body');
+  const progressBar = document.getElementById('reading-bar');
+  const sidebarBar = document.getElementById('sidebar-progress');
+  const sidebarText = document.getElementById('sidebar-progress-text');
+  if (articleContent) {
+    window.addEventListener('scroll', () => {
+      const rect = articleContent.getBoundingClientRect();
+      const total = articleContent.offsetHeight - window.innerHeight;
+      const progress = Math.min(100, Math.max(0, Math.round((-rect.top / total) * 100)));
+      if (progressBar) progressBar.style.width = progress + '%';
+      if (sidebarBar) sidebarBar.style.width = progress + '%';
+      if (sidebarText) sidebarText.textContent = progress + '% read';
+    });
+  }
+</script>
+{% endblock %}
+

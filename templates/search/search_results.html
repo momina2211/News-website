@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Search: "{{ query }}" — {{ SITE_NAME }}{% endblock %}
+{% block meta_description %}Search results for "{{ query }}" on {{ SITE_NAME }}.{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  {# Search bar #}
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 mb-8">
+    <form action="{% url 'articles:search' %}" method="get" class="flex gap-3">
+      <div class="relative flex-1">
+        <svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input type="search" name="q" value="{{ query }}" placeholder="Search articles, authors, tags..."
+               class="form-input pl-10 text-base" autofocus/>
+      </div>
+      <button type="submit" class="btn-primary px-6">Search</button>
+    </form>
+  </div>
+
+  {% if query %}
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-xl font-bold text-gray-900 dark:text-white">
+        Results for <span class="text-blue-600 dark:text-blue-400">"{{ query }}"</span>
+      </h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{{ result_count }} article{{ result_count|pluralize }} found</p>
+    </div>
+  </div>
+
+  {% if articles %}
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    {% for article in articles %}
+    {% include "partials/article_card.html" %}
+    {% endfor %}
+  </div>
+
+  {# Pagination #}
+  {% if is_paginated %}
+  <nav class="flex items-center justify-center gap-1 mt-10">
+    {% if page_obj.has_previous %}
+    <a href="?q={{ query }}&page={{ page_obj.previous_page_number }}" class="px-3 py-2 rounded-lg text-sm font-medium bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-blue-50">← Prev</a>
+    {% endif %}
+    {% for i in paginator.page_range %}
+      {% if page_obj.number == i %}
+      <span class="px-3 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white">{{ i }}</span>
+      {% elif i > page_obj.number|add:"-3" and i < page_obj.number|add:"3" %}
+      <a href="?q={{ query }}&page={{ i }}" class="px-3 py-2 rounded-lg text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-blue-50">{{ i }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+    <a href="?q={{ query }}&page={{ page_obj.next_page_number }}" class="px-3 py-2 rounded-lg text-sm font-medium bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-blue-50">Next →</a>
+    {% endif %}
+  </nav>
+  {% endif %}
+
+  {% else %}
+  <div class="text-center py-20 text-gray-400">
+    <div class="text-6xl mb-4">🔍</div>
+    <p class="text-lg font-medium">No results found for "{{ query }}".</p>
+    <p class="text-sm mt-2">Try different keywords or browse categories.</p>
+    <a href="{% url 'articles:article_list' %}" class="btn-primary mt-6">Browse All Articles</a>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="text-center py-20 text-gray-400">
+    <div class="text-6xl mb-4">🔎</div>
+    <p class="text-lg font-medium">Enter a search term above to find articles.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+

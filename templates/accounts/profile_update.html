@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-8 py-6">
+      <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M3 13h2v8H3zm4-8h2v16H7zm4-2h2v18h-2zm4 4h2v14h-2zm4-2h2v16h-2z"/></svg>
+        Edit Your Profile
+      </h1>
+      <p class="text-blue-100 text-sm mt-1">Update your profile information and preferences</p>
+    </div>
+
+    <!-- Form Content -->
+    <form method="post" enctype="multipart/form-data" class="p-8 space-y-8" novalidate>
+      {% csrf_token %}
+
+      <!-- Personal Information Section -->
+      <section>
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <span class="text-2xl">👤</span> Personal Information
+        </h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="{{ form.first_name.id_for_label }}">First Name</label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}
+              <div class="error-message">{{ form.first_name.errors.0 }}</div>
+            {% endif %}
+          </div>
+          <div class="form-group">
+            <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}
+              <div class="error-message">{{ form.last_name.errors.0 }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.email.id_for_label }}" class="required">Email Address</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <div class="error-message">{{ form.email.errors.0 }}</div>
+          {% endif %}
+          <p class="form-help">Your primary email address</p>
+        </div>
+      </section>
+
+      <!-- Bio Section -->
+      <section class="border-t border-gray-200 dark:border-gray-700 pt-6">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <span class="text-2xl">📝</span> Bio & Interests
+        </h2>
+        <div class="form-group">
+          <label for="{{ form.bio.id_for_label }}">Bio</label>
+          {{ form.bio }}
+          {% if form.bio.errors %}
+            <div class="error-message">{{ form.bio.errors.0 }}</div>
+          {% endif %}
+          <p class="form-help">Tell other users about yourself (max 500 characters)</p>
+        </div>
+      </section>
+
+      <!-- Media Section -->
+      <section class="border-t border-gray-200 dark:border-gray-700 pt-6">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <span class="text-2xl">🖼️</span> Profile Picture
+        </h2>
+
+        {% if form.instance.avatar %}
+        <div class="mb-4">
+          <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Current Avatar:</p>
+          <img src="{{ form.instance.avatar.url }}" alt="Current avatar" class="h-24 w-24 rounded-lg object-cover border border-gray-200 dark:border-gray-700">
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+          <label for="{{ form.avatar.id_for_label }}">Upload New Avatar</label>
+          {{ form.avatar }}
+          {% if form.avatar.errors %}
+            <div class="error-message">{{ form.avatar.errors.0 }}</div>
+          {% endif %}
+          <p class="form-help">PNG, JPG, or GIF (max 5MB). Recommended size: 400x400px</p>
+        </div>
+      </section>
+
+      <!-- Social Section -->
+      <section class="border-t border-gray-200 dark:border-gray-700 pt-6">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <span class="text-2xl">🔗</span> Social Links
+        </h2>
+
+        <div class="form-group">
+          <label for="{{ form.website.id_for_label }}">Website</label>
+          {{ form.website }}
+          {% if form.website.errors %}
+            <div class="error-message">{{ form.website.errors.0 }}</div>
+          {% endif %}
+          <p class="form-help">Your personal blog or portfolio URL</p>
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.twitter.id_for_label }}">Twitter Handle</label>
+          {{ form.twitter }}
+          {% if form.twitter.errors %}
+            <div class="error-message">{{ form.twitter.errors.0 }}</div>
+          {% endif %}
+          <p class="form-help">Your Twitter username without the @symbol</p>
+        </div>
+      </section>
+
+      <!-- Non-field Errors -->
+      {% if form.non_field_errors %}
+      <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/50 rounded-lg px-4 py-3 text-sm">
+        <p class="font-semibold text-red-800 dark:text-red-400 flex items-center gap-2 mb-2">
+          <span>⚠️</span> Error updating profile
+        </p>
+        <ul class="list-disc list-inside text-red-700 dark:text-red-300 space-y-1 text-xs">
+          {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <!-- Action Buttons -->
+      <div class="button-group border-t border-gray-200 dark:border-gray-700 pt-6 justify-between">
+        <a href="{% url 'accounts:profile' request.user.username %}" class="btn-secondary">
+          ← Cancel
+        </a>
+        <button type="submit" class="btn-primary">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+

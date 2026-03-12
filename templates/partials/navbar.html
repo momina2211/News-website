@@ -1,0 +1,110 @@
+{% load static %}
+<nav class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+
+      {# Logo #}
+      <a href="{% url 'articles:home' %}" class="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-extrabold text-xl tracking-tight">
+        <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 14H7v-2h5v2zm5-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+        {{ SITE_NAME }}
+      </a>
+
+      {# Desktop nav #}
+      <div class="hidden md:flex items-center gap-1">
+        <a href="{% url 'articles:home' %}" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Home</a>
+        <a href="{% url 'articles:article_list' %}" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">Articles</a>
+
+        {# Categories dropdown #}
+        <div class="relative group">
+          <button class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-1">
+            Categories
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div class="absolute left-0 mt-1 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            <div class="py-2">
+              {% for cat in nav_categories %}
+              <a href="{{ cat.get_absolute_url }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                {{ cat.icon }} {{ cat.name }}
+                <span class="float-right text-xs text-gray-400">{{ cat.article_count }}</span>
+              </a>
+              {% empty %}
+              <span class="block px-4 py-2 text-sm text-gray-400">No categories yet</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Search + Actions #}
+      <div class="hidden md:flex items-center gap-3">
+        {# Search bar #}
+        <form action="{% url 'articles:search' %}" method="get" class="relative hidden md:block">
+          <input type="search" name="q" placeholder="Search articles..." value="{{ request.GET.q }}"
+                 class="pl-10 pr-4 py-2 text-sm border-2 border-gray-200 dark:border-gray-600 rounded-full bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 w-48 transition-all hover:border-gray-300 dark:hover:border-gray-500"/>
+          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        </form>
+
+        {# Dark mode toggle #}
+        <button id="theme-toggle" aria-label="Toggle dark mode"
+                class="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+          <svg id="icon-sun" class="w-5 h-5 hidden dark:block" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/></svg>
+          <svg id="icon-moon" class="w-5 h-5 block dark:hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
+        </button>
+
+        {% if user.is_authenticated %}
+        <div class="relative group">
+          <button class="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            <img src="{{ user.get_avatar_url }}" alt="{{ user.username }}" class="w-8 h-8 rounded-full object-cover border-2 border-blue-200"/>
+            <span class="hidden lg:block">{{ user.username }}</span>
+          </button>
+          <div class="absolute right-0 mt-1 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            <div class="py-2">
+              <a href="{{ user.get_absolute_url }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">My Profile</a>
+              {% if user.is_author %}
+              <a href="{% url 'articles:article_create' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">Write Article</a>
+              {% endif %}
+              <a href="{% url 'accounts:profile_update' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">Settings</a>
+              {% if user.is_staff %}
+              <a href="{% url 'admin:index' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">Admin Panel</a>
+              {% endif %}
+              <hr class="border-gray-100 dark:border-gray-700 my-1"/>
+              <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-gray-700">Sign out</a>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <a href="{% url 'accounts:login' %}" class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Sign in</a>
+        <a href="{% url 'accounts:register' %}" class="btn-primary text-sm py-1.5">Get started</a>
+        {% endif %}
+      </div>
+
+      {# Mobile menu button #}
+      <button id="mobile-menu-btn" aria-label="Open menu" class="md:hidden p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+        <svg id="hamburger-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    {# Mobile menu #}
+    <div id="mobile-menu" class="md:hidden hidden border-t border-gray-200 dark:border-gray-700 py-3">
+      <div class="space-y-1">
+        <a href="{% url 'articles:home' %}" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Home</a>
+        <a href="{% url 'articles:article_list' %}" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">Articles</a>
+        {% for cat in nav_categories %}
+        <a href="{{ cat.get_absolute_url }}" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">{{ cat.name }}</a>
+        {% endfor %}
+        <form action="{% url 'articles:search' %}" method="get" class="px-3 py-2">
+          <input type="search" name="q" placeholder="Search..." class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-800"/>
+        </form>
+        {% if user.is_authenticated %}
+        <a href="{{ user.get_absolute_url }}" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">My Profile</a>
+        <a href="{% url 'accounts:logout' %}" class="block px-3 py-2 rounded-md text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-gray-700">Sign out</a>
+        {% else %}
+        <a href="{% url 'accounts:login' %}" class="block px-3 py-2 rounded-md text-sm font-medium text-blue-600">Sign in</a>
+        <a href="{% url 'accounts:register' %}" class="block px-3 py-2 rounded-md text-sm font-medium text-blue-600">Register</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</nav>
+

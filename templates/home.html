@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block title %}{{ SITE_NAME }} — Breaking News & Top Stories{% endblock %}
+{% block meta_description %}Latest breaking news, top stories, and in-depth analysis from {{ SITE_NAME }}.{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+  {# ── Hero Section ── #}
+  {% if featured_article %}
+  <section class="mb-12">
+    <a href="{{ featured_article.get_absolute_url }}" class="group relative block overflow-hidden rounded-3xl shadow-xl">
+      <div class="aspect-[21/9] bg-gray-900">
+        {% if featured_article.featured_image %}
+        <img src="{{ featured_article.featured_image.url }}" alt="{{ featured_article.title }}"
+             class="w-full h-full object-cover opacity-80 group-hover:opacity-70 group-hover:scale-105 transition-all duration-700"/>
+        {% else %}
+        <div class="w-full h-full bg-gradient-to-br from-blue-800 to-indigo-900"></div>
+        {% endif %}
+      </div>
+      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-8 md:p-12">
+        {% if featured_article.category %}
+        <span class="badge bg-blue-500 text-white mb-3 w-fit">{{ featured_article.category.name }}</span>
+        {% endif %}
+        <h1 class="text-2xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight mb-3 max-w-3xl group-hover:text-blue-300 transition-colors">
+          {{ featured_article.title }}
+        </h1>
+        <p class="text-gray-300 text-sm md:text-base max-w-2xl line-clamp-2 mb-4">{{ featured_article.summary }}</p>
+        <div class="flex items-center gap-4 text-gray-400 text-sm">
+          <img src="{{ featured_article.author.get_avatar_url }}" class="w-7 h-7 rounded-full object-cover"/>
+          <span class="text-white font-medium">{{ featured_article.author.get_full_name|default:featured_article.author.username }}</span>
+          <span>·</span>
+          <span>{{ featured_article.published_at|date:"F d, Y" }}</span>
+          <span>·</span>
+          <span>{{ featured_article.reading_time }} min read</span>
+        </div>
+      </div>
+    </a>
+  </section>
+  {% endif %}
+
+  {# ── Latest News Grid ── #}
+  <section class="mb-12">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Latest Stories</h2>
+      <a href="{% url 'articles:article_list' %}" class="text-blue-600 dark:text-blue-400 text-sm font-medium hover:underline">View all →</a>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="articles-grid">
+      {% for article in hero_articles %}
+      {% include "partials/article_card.html" %}
+      {% endfor %}
+    </div>
+  </section>
+
+  {# ── Two column layout: More Articles + Sidebar ── #}
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+    {# Main content #}
+    <div class="lg:col-span-2">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white">More Articles</h2>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6"
+           id="infinite-scroll-container"
+           hx-get="{% url 'articles:load_more' %}?page=2"
+           hx-trigger="revealed"
+           hx-swap="afterend"
+           hx-indicator="#page-load-spinner">
+        {% for article in latest_articles %}
+        {% include "partials/article_card.html" %}
+        {% endfor %}
+      </div>
+      <div id="page-load-spinner" class="htmx-indicator flex justify-center py-6">
+        <svg class="animate-spin w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+        </svg>
+      </div>
+    </div>
+
+    {# Sidebar #}
+    <aside class="space-y-8">
+      {# Trending #}
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          🔥 <span>Trending Now</span>
+        </h3>
+        <ol class="space-y-4">
+          {% for article in trending_articles %}
+          <li class="flex gap-3">
+            <span class="text-3xl font-extrabold text-gray-200 dark:text-gray-700 leading-none">{{ forloop.counter }}</span>
+            <div>
+              <a href="{{ article.get_absolute_url }}"
+                 class="text-sm font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors line-clamp-2 leading-snug">
+                {{ article.title }}
+              </a>
+              <p class="text-xs text-gray-400 mt-1">{{ article.view_count|intcomma }} views</p>
+            </div>
+          </li>
+          {% endfor %}
+        </ol>
+      </div>
+
+      {# Categories #}
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Browse Topics</h3>
+        <div class="flex flex-wrap gap-2">
+          {% for cat in categories %}
+          <a href="{{ cat.get_absolute_url }}"
+             class="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-sm hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-700 dark:hover:text-blue-400 transition-colors">
+            {{ cat.icon }} {{ cat.name }}
+            <span class="text-xs text-gray-400">({{ cat.article_count }})</span>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+
+      {# Popular Tags #}
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Popular Tags</h3>
+        <div class="flex flex-wrap gap-2">
+          {% for tag in popular_tags %}
+          <a href="{{ tag.get_absolute_url }}"
+             class="badge bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-xs px-2.5 py-1">
+            #{{ tag.name }}
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,16 @@
+{
+  "name": "newshub-news-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tailwind CSS build pipeline for the NewsHub Django project",
+  "scripts": {
+    "dev": "tailwindcss -i ./static/src/input.css -o ./static/css/tailwind.css --watch",
+    "build": "tailwindcss -i ./static/src/input.css -o ./static/css/tailwind.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17",
+    "postcss": "^8.4.49",
+    "autoprefixer": "^10.4.20"
+  }
+}
+

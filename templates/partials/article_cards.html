@@ -1,0 +1,17 @@
+{% for article in articles %}
+{% include "partials/article_card.html" %}
+{% endfor %}
+
+{% if page_obj.has_next %}
+<div class="col-span-full flex justify-center mt-8"
+     hx-get="{% url 'articles:load_more' %}?page={{ page_obj.next_page_number }}"
+     hx-trigger="revealed"
+     hx-swap="outerHTML"
+     hx-indicator="#load-spinner">
+  <div id="load-spinner" class="htmx-indicator flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
+    <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+    Loading more articles...
+  </div>
+</div>
+{% endif %}
+

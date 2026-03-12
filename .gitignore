@@ -1,0 +1,272 @@
+===============================================
+# Python & Package Management
+===============================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.whl
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.Python
+
+# Package managers
+Pipfile.lock
+poetry.lock
+.pdm.toml
+
+# Python type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.hypothesis/
+*.cover
+
+===============================================
+# Django & Web Framework
+===============================================
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+*.log
+media/
+staticfiles/
+static_root/
+*.pot
+celerybeat-schedule
+
+# Django migrations (optional - usually tracked)
+# migrations/
+
+===============================================
+# Environment & Secrets
+===============================================
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.crt
+*.p12
+secrets/
+
+===============================================
+# IDEs & Editors
+===============================================
+# PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+.idea_modules/
+
+# VSCode
+.vscode/
+*.code-workspace
+.history/
+.vscode-server/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+.*.sw[po]
+*~
+.swp
+.swo
+*.vim
+
+# Emacs
+*~
+\#*\#
+.\#*
+
+# Nano
+.nano_history
+
+# Other editors
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+===============================================
+# OS-Specific Files
+===============================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.lnk
+
+# Linux
+.directory
+
+===============================================
+# Node.js & Frontend
+===============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+npm-error.log*
+package-lock.json
+yarn.lock
+.npm
+.eslintcache
+
+# Tailwind CSS
+.tailwindcss/
+dist/
+build/
+
+===============================================
+# Database & Data Files
+===============================================
+*.sqlite3
+*.sqlite3-journal
+*.db
+*.sql
+*.dbg
+db_backup/
+backups/
+
+===============================================
+# Docker & Containers
+===============================================
+docker-compose.override.yml
+.dockerignore
+Dockerfile.local
+
+===============================================
+# System & Temporary Files
+===============================================
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+*.swp
+*.swo
+*~
+.~*
+.lock
+
+# Compiled files
+*.so
+*.o
+*.pyc
+
+# Directories
+__MACOSX/
+.cache/
+.temp/
+tmp/
+temp/
+
+===============================================
+# IDE Generated Files
+===============================================
+.project
+.pydevproject
+.settings/
+*.sublime-settings
+
+===============================================
+# Python Virtual Env Generated
+===============================================
+bin/
+include/
+lib/
+lib64/
+pyvenv.cfg
+
+===============================================
+# AI & ML Related
+===============================================
+*.pt
+*.pth
+*.model
+models/
+checkpoints/
+__pycache__/
+
+===============================================
+# Project Specific
+===============================================
+# Media uploads (user generated)
+media/uploads/
+
+# Static files (collected)
+staticfiles/
+static_root/
+
+# Local development
+local/
+development/
+
+# Secrets and API keys (if created locally)
+*.secret
+.secrets/
+
+# Backup files
+*.backup
+*.backup.*
+
+# Distribution packages
+dist/
+*.egg-info/
+
+===============================================
+# Additional Safety Nets
+===============================================
+# Don't accidentally commit sensitive files
+*.pem
+*.key
+*.p8
+*.p12
+private_key*
+secret_key*
+credentials*
+
+# Database dumps
+*.sql
+*.dump
+*.bak
+
+# Logs
+logs/
+*.log
+*.log.*
+

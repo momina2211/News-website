@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}#{{ tag.name }} — {{ SITE_NAME }}{% endblock %}
+{% block meta_description %}Articles tagged with #{{ tag.name }} on {{ SITE_NAME }}.{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-8 mb-10 text-white">
+    <p class="text-white/70 text-sm mb-1">Tag</p>
+    <h1 class="text-4xl font-extrabold">#{{ tag.name }}</h1>
+    <p class="text-white/70 text-sm mt-2">{{ tag.article_count }} article{{ tag.article_count|pluralize }}</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <div class="lg:col-span-3">
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+        {% for article in articles %}
+        {% include "partials/article_card.html" %}
+        {% endfor %}
+      </div>
+
+      {% if not articles %}
+      <div class="text-center py-20 text-gray-400">
+        <div class="text-6xl mb-4">🏷️</div>
+        <p class="text-lg font-medium">No articles with this tag yet.</p>
+      </div>
+      {% endif %}
+
+      {% if articles.has_other_pages %}
+      <nav class="flex items-center justify-center gap-1 mt-10">
+        {% if articles.has_previous %}
+        <a href="?page={{ articles.previous_page_number }}" class="px-3 py-2 rounded-lg text-sm font-medium bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-blue-50">← Prev</a>
+        {% endif %}
+        {% for num in articles.paginator.page_range %}
+          {% if articles.number == num %}
+          <span class="px-3 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white">{{ num }}</span>
+          {% elif num > articles.number|add:"-3" and num < articles.number|add:"3" %}
+          <a href="?page={{ num }}" class="px-3 py-2 rounded-lg text-sm font-medium bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-blue-50">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+        {% if articles.has_next %}
+        <a href="?page={{ articles.next_page_number }}" class="px-3 py-2 rounded-lg text-sm font-medium bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-blue-50">Next →</a>
+        {% endif %}
+      </nav>
+      {% endif %}
+    </div>
+
+    <aside>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm">
+        <h3 class="font-bold text-gray-900 dark:text-white mb-4">Popular Tags</h3>
+        <div class="flex flex-wrap gap-2">
+          {% for t in popular_tags %}
+          <a href="{{ t.get_absolute_url }}"
+             class="badge text-xs px-2.5 py-1 transition-colors
+             {% if t.pk == tag.pk %}bg-indigo-600 text-white
+             {% else %}bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 hover:text-indigo-600 dark:hover:text-indigo-400{% endif %}">
+            #{{ t.name }}
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+{% endblock %}
+

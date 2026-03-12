@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Write{% endif %} Article — {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-indigo-500 to-indigo-600 px-8 py-6">
+      <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M3 13h2v8H3zm4-8h2v16H7zm4-2h2v18h-2zm4 4h2v14h-2zm4-2h2v16h-2z"/></svg>
+        {% if form.instance.pk %}Edit Article{% else %}✍️ Write New Article{% endif %}
+      </h1>
+      <p class="text-indigo-100 text-sm mt-1">Create engaging content for your readers</p>
+    </div>
+
+    <!-- Form -->
+    <form method="post" enctype="multipart/form-data" class="p-8 space-y-8" novalidate>
+      {% csrf_token %}
+
+      <!-- Content Section -->
+      <section>
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+          Content
+        </h2>
+
+        <div class="form-group">
+          <label for="{{ form.title.id_for_label }}" class="required">Article Title</label>
+          {{ form.title }}
+          {% if form.title.errors %}
+            <div class="error-message">{{ form.title.errors.0 }}</div>
+          {% endif %}
+          <p class="form-help">A compelling title that summarizes your article (60-70 characters recommended)</p>
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.summary.id_for_label }}" class="required">Summary</label>
+          {{ form.summary }}
+          {% if form.summary.errors %}
+            <div class="error-message">{{ form.summary.errors.0 }}</div>
+          {% endif %}
+          <p class="form-help">Brief overview shown in article cards and search results (100-160 characters)</p>
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.content.id_for_label }}" class="required">Content</label>
+          {{ form.content }}
+          {% if form.content.errors %}
+            <div class="error-message">{{ form.content.errors.0 }}</div>
+          {% endif %}
+          <p class="form-help">Write your article content. Use paragraphs and line breaks for readability.</p>
+        </div>
+      </section>
+
+      <!-- Media Section -->
+      <section class="border-t border-gray-200 dark:border-gray-700 pt-6">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+          Media
+        </h2>
+
+        {% if form.instance.featured_image %}
+        <div class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+          <p class="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">Current Featured Image:</p>
+          <img src="{{ form.instance.featured_image.url }}" alt="Featured image" class="max-h-48 rounded-lg object-cover">
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+          <label for="{{ form.featured_image.id_for_label }}">Featured Image</label>
+          {{ form.featured_image }}
+          {% if form.featured_image.errors %}
+            <div class="error-message">{{ form.featured_image.errors.0 }}</div>
+          {% endif %}
+          <p class="form-help">PNG, JPG, or GIF. Recommended size: 1200x630px for best display</p>
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.featured_image_caption.id_for_label }}">Image Caption</label>
+          {{ form.featured_image_caption }}
+          {% if form.featured_image_caption.errors %}
+            <div class="error-message">{{ form.featured_image_caption.errors.0 }}</div>
+          {% endif %}
+          <p class="form-help">Brief description of the image for accessibility</p>
+        </div>
+      </section>
+
+      <!-- Organization Section -->
+      <section class="border-t border-gray-200 dark:border-gray-700 pt-6">
+        <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+          Organization
+        </h2>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="{{ form.category.id_for_label }}">Category</label>
+            {{ form.category }}
+            {% if form.category.errors %}
+              <div class="error-message">{{ form.category.errors.0 }}</div>
+            {% endif %}
+            <p class="form-help">Select a category for your article</p>
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.meta_description.id_for_label }}">SEO Meta Description</label>
+            {{ form.meta_description }}
+            {% if form.meta_description.errors %}
+              <div class="error-message">{{ form.meta_description.errors.0 }}</div>
+            {% endif %}
+            <p class="form-help">Appears in search results (150-160 characters)</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.tags.id_for_label }}">Tags</label>
+          <div class="p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600">
+            {{ form.tags }}
+          </div>
+          {% if form.tags.errors %}
+            <div class="error-message mt-2">{{ form.tags.errors.0 }}</div>
+          {% endif %}
+          <p class="form-help mt-2">Select multiple tags to help categorize your article</p>
+        </div>
+      </section>
+
+      <!-- Non-field Errors -->
+      {% if form.non_field_errors %}
+      <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/50 rounded-lg px-4 py-3 text-sm">
+        <p class="font-semibold text-red-800 dark:text-red-400 flex items-center gap-2 mb-2">
+          <span>⚠️</span> Error saving article
+        </p>
+        <ul class="list-disc list-inside text-red-700 dark:text-red-300 space-y-1 text-xs">
+          {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <!-- Action Buttons -->
+      <div class="button-group border-t border-gray-200 dark:border-gray-700 pt-6 justify-between">
+        <a href="{% url 'articles:home' %}" class="btn-secondary">
+          Cancel
+        </a>
+        <div class="flex gap-3">
+          <button type="submit" name="action" value="save_draft" class="btn-secondary">
+            💾 Save as Draft
+          </button>
+          <button type="submit" class="btn-primary">
+            {% if form.instance.pk %}📝 Update Article{% else %}✨ Publish Article{% endif %}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+

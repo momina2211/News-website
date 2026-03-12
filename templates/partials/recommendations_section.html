@@ -1,0 +1,49 @@
+{# Recommended articles section - HTMX powered #}
+<div id="recommendations-section" class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
+        <span class="text-2xl">✨</span> Recommended For You
+    </h2>
+    <p class="text-gray-600 dark:text-gray-400 text-sm mb-6">Based on your reading history</p>
+
+    <!-- Loading indicator -->
+    <div id="recommendations-loading" class="htmx-indicator flex justify-center py-8">
+        <div class="animate-spin">
+            <svg class="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Recommendations container -->
+    <div id="recommendations-container"
+         hx-get="/api/recommendations/recommended_for_me/?limit=10"
+         hx-trigger="load"
+         hx-swap="innerHTML"
+         hx-indicator="#recommendations-loading"
+         class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Will be populated by HTMX -->
+    </div>
+</div>
+
+<!-- Fallback script for non-HTMX loading -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!htmx.config.historyCacheSize) {
+            // Load recommendations via fetch if HTMX not available
+            fetch('/api/recommendations/recommended_for_me/?limit=10')
+                .then(r => r.json())
+                .then(data => {
+                    const container = document.getElementById('recommendations-container');
+                    container.innerHTML = data.map(article => `
+                        <a href="${article.url}" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                            <h3 class="font-semibold text-gray-900 dark:text-white">${article.title}</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">${article.summary}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">📈 Score: ${article.trending_score.toFixed(1)}</p>
+                        </a>
+                    `).join('');
+                });
+        }
+    });
+</script>
+

@@ -1,0 +1,34 @@
+{# Trending articles section #}
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
+        <span class="text-2xl">🔥</span> Trending Now
+    </h2>
+    <p class="text-gray-600 dark:text-gray-400 text-sm mb-6">Most engaging stories this week</p>
+
+    <div class="space-y-3">
+        {% for article in trending_articles %}
+        <a href="{{ article.get_absolute_url }}" class="block p-4 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-lg hover:from-orange-100 hover:to-red-100 dark:hover:from-orange-900/40 dark:hover:to-red-900/40 transition-all">
+            <div class="flex items-start gap-3">
+                <div class="text-2xl font-extrabold text-orange-500">{{ forloop.counter }}</div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-gray-900 dark:text-white line-clamp-2">{{ article.title }}</h3>
+                    <div class="flex items-center gap-2 mt-2 text-xs text-gray-600 dark:text-gray-400">
+                        <span>📊 {{ article.view_count|intcomma }} views</span>
+                        <span>•</span>
+                        <span>❤️ {{ article.like_count }} likes</span>
+                        <span>•</span>
+                        <span>⚡ Score: {{ article.trending_score|floatformat:1 }}</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <p class="text-gray-500 dark:text-gray-400 text-center py-4">No trending articles yet</p>
+        {% endfor %}
+    </div>
+
+    <a href="{% url 'articles:article_list' %}" class="mt-4 inline-block text-blue-600 dark:text-blue-400 text-sm font-semibold hover:underline">
+        View all articles →
+    </a>
+</div>
+
